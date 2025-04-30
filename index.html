@@ -99,7 +99,7 @@
     }
     @keyframes jump {
       0% { bottom: 0; }
-      50% { bottom: 160px; }
+      50% { bottom: 180px; }
       100% { bottom: 0; }
     }
     #gameOver {
@@ -139,6 +139,17 @@
       background-color: #00cc66;
       transition: width 0.3s ease, background-color 0.3s ease;
     }
+    .debug-hitbox {
+      border: 2px dashed red;
+    }
+    #lineDebug {
+      position: fixed;
+      bottom: 60px;
+      width: 100%;
+      height: 1px;
+      background: black;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
@@ -154,8 +165,8 @@
 <div id="highScore">Recorde: 0</div>
 
 <div class="game" id="gameArea">
-  <div class="dino" id="dino"></div>
-  <div class="cactus" id="cactus"></div>
+  <div class="dino debug-hitbox" id="dino"></div>
+  <div class="cactus debug-hitbox" id="cactus"></div>
 </div>
 
 <div id="gameOver">
@@ -167,7 +178,7 @@
 <audio id="hitSound" src="slide.mp3"></audio>
 <audio id="failSound" src="fail.mp3"></audio>
 
-
+<div id="lineDebug"></div>
 <script>
   const dino = document.getElementById("dino");
   const cactus = document.getElementById("cactus");
@@ -262,7 +273,7 @@
     }
 
     if (difficultyStarted) {
-      const newWidth = Math.min(currentWidth + 2, 80);
+      const newWidth = Math.min(currentWidth + 2, 70); // Limite novo
       cactus.style.width = newWidth + "px";
       cactus.style.height = newWidth + "px";
 
