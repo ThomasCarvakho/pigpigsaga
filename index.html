@@ -167,8 +167,9 @@
 <audio id="hitSound" src="slide.mp3"></audio>
 <audio id="failSound" src="fail.mp3"></audio>
 
+
 <script>
-const dino = document.getElementById("dino");
+  const dino = document.getElementById("dino");
   const cactus = document.getElementById("cactus");
   const scoreDisplay = document.getElementById("score");
   const highScoreDisplay = document.getElementById("highScore");
@@ -207,8 +208,9 @@ const dino = document.getElementById("dino");
   }
 
   document.addEventListener("keydown", jump);
-  document.addEventListener("touchstart", jump)
-    const scoreInterval = setInterval(() => {
+  document.addEventListener("touchstart", jump);
+
+  const scoreInterval = setInterval(() => {
     if (gameRunning) {
       score++;
       scoreDisplay.textContent = "Pontuação: " + score;
@@ -216,14 +218,18 @@ const dino = document.getElementById("dino");
   }, 100);
 
   const checkCollision = setInterval(() => {
-    const dinoRect = dino.getBoundingClientRect();
-    const cactusRect = cactus.getBoundingClientRect();
+    const dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+    const cactusRight = parseInt(window.getComputedStyle(cactus).getPropertyValue("right"));
+    const cactusWidth = cactus.offsetWidth;
+    const cactusTotalLeft = window.innerWidth - cactusRight;
 
-    if (
-      dinoRect.right > cactusRect.left &&
-      dinoRect.left < cactusRect.right &&
-      dinoRect.bottom > cactusRect.top
-    ) {
+    const dinoLeft = dino.offsetLeft;
+    const dinoWidth = dino.offsetWidth;
+
+    const collisionX = cactusTotalLeft < dinoLeft + dinoWidth && cactusTotalLeft + cactusWidth > dinoLeft;
+    const collisionY = dinoBottom < 60;
+
+    if (collisionX && collisionY) {
       gameRunning = false;
       clearInterval(difficultyInterval);
       clearInterval(scoreInterval);
@@ -242,11 +248,20 @@ const dino = document.getElementById("dino");
     }
   }, 10);
 
-  // Dificuldade progressiva + barra de cor
+  // Dificuldade: só ativa após 30 segundos (score >= 300)
   let progress = 0;
+  let difficultyStarted = false;
+
   let difficultyInterval = setInterval(() => {
-    if (gameRunning) {
-      const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
+    if (!gameRunning) return;
+
+    const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
+
+    if (!difficultyStarted && score >= 300) {
+      difficultyStarted = true;
+    }
+
+    if (difficultyStarted) {
       const newWidth = Math.min(currentWidth + 2, 80);
       cactus.style.width = newWidth + "px";
       cactus.style.height = newWidth + "px";
