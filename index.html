@@ -74,7 +74,6 @@
 </head>
 <body>
 
-
 <div id="startScreen">
   <h1>PigPig - Running away from bath</h1>
   <p>Recorde: <span id="storedHighScore">0</span></p>
@@ -98,8 +97,6 @@
 <audio id="jumpSound" src="jump.mp3"></audio>
 <audio id="hitSound" src="slide.mp3"></audio>
 <audio id="failSound" src="fail.mp3"></audio>
-
-<div id="lineDebug"></div>
 
 <script>
 const dino = document.getElementById("dino");
@@ -181,6 +178,7 @@ let difficultyInterval = setInterval(() => {
   if (!gameRunning) return;
 
   const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
+
   if (!difficultyStarted && score >= 300) {
     difficultyStarted = true;
   }
@@ -204,14 +202,10 @@ let difficultyInterval = setInterval(() => {
   }
 }, 5000);
 </script>
-
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
 </script>
-
 </body>
 </html>
-
-<!-- resto do HTML permanece o mesmo -->
