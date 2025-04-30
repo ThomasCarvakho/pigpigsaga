@@ -99,7 +99,7 @@
     }
     @keyframes jump {
       0% { bottom: 0; }
-      50% { bottom: 140px; }
+      50% { bottom: 160px; }
       100% { bottom: 0; }
     }
     #gameOver {
@@ -143,174 +143,138 @@
 </head>
 <body>
 
-  <!-- TELA INICIAL -->
-  <div id="startScreen">
-    <h1>PigPig - Running away from bath</h1>
-    <p>Recorde: <span id="storedHighScore">0</span></p>
-    <button onclick="startGame()">Jogar</button>
-  </div>
+<div id="startScreen">
+  <h1>PigPig - Running away from bath</h1>
+  <p>Recorde: <span id="storedHighScore">0</span></p>
+  <button onclick="startGame()">Jogar</button>
+</div>
 
-  <!-- UI JOGO -->
-  <div id="difficultyBarContainer"><div id="difficultyBar"></div></div>
-  <div id="score">Pontuação: 0</div>
-  <div id="highScore">Recorde: 0</div>
+<div id="difficultyBarContainer"><div id="difficultyBar"></div></div>
+<div id="score">Pontuação: 0</div>
+<div id="highScore">Recorde: 0</div>
 
-  <!-- ÁREA DO JOGO -->
-  <div class="game" id="gameArea">
-    <div class="dino" id="dino"></div>
-    <div class="cactus" id="cactus"></div>
-  </div>
+<div class="game" id="gameArea">
+  <div class="dino" id="dino"></div>
+  <div class="cactus" id="cactus"></div>
+</div>
 
-  <!-- GAME OVER -->
-  <div id="gameOver">
-    <div id="finalScore"></div>
-    <button onclick="location.reload()">Reiniciar</button>
-  </div>
+<div id="gameOver">
+  <div id="finalScore"></div>
+  <button onclick="location.reload()">Reiniciar</button>
+</div>
 
-  <!-- SONS -->
-  <audio id="jumpSound" src="jump.mp3"></audio>
-  <audio id="hitSound" src="slide.mp3"></audio>
-  <audio id="failSound" src="fail.mp3"></audio>
+<audio id="jumpSound" src="jump.mp3"></audio>
+<audio id="hitSound" src="slide.mp3"></audio>
+<audio id="failSound" src="fail.mp3"></audio>
 
-  <script>
-    const dino = document.getElementById("dino");
-    const cactus = document.getElementById("cactus");
-    const scoreDisplay = document.getElementById("score");
-    const highScoreDisplay = document.getElementById("highScore");
-    const storedHighScoreDisplay = document.getElementById("storedHighScore");
-    const gameOverScreen = document.getElementById("gameOver");
-    const finalScoreText = document.getElementById("finalScore");
-    const jumpSound = document.getElementById("jumpSound");
-    const hitSound = document.getElementById("hitSound");
-    const failSound = document.getElementById("failSound");
-    const startScreen = document.getElementById("startScreen");
-    const gameArea = document.getElementById("gameArea");
+<script>
+  const dino = document.getElementById("dino");
+  const cactus = document.getElementById("cactus");
+  const scoreDisplay = document.getElementById("score");
+  const highScoreDisplay = document.getElementById("highScore");
+  const storedHighScoreDisplay = document.getElementById("storedHighScore");
+  const gameOverScreen = document.getElementById("gameOver");
+  const finalScoreText = document.getElementById("finalScore");
+  const jumpSound = document.getElementById("jumpSound");
+  const hitSound = document.getElementById("hitSound");
+  const failSound = document.getElementById("failSound");
+  const startScreen = document.getElementById("startScreen");
+  const gameArea = document.getElementById("gameArea");
 
-    let score = 0;
-    let highScore = localStorage.getItem("pigpigHighScore") || 0;
-    let gameRunning = false;
+  let score = 0;
+  let highScore = localStorage.getItem("pigpigHighScore") || 0;
+  let gameRunning = false;
 
-    storedHighScoreDisplay.textContent = highScore;
-    highScoreDisplay.textContent = "Recorde: " + highScore;
+  storedHighScoreDisplay.textContent = highScore;
+  highScoreDisplay.textContent = "Recorde: " + highScore;
 
-    function startGame() {
-      startScreen.style.display = "none";
-      gameArea.style.display = "block";
-      gameRunning = true;
-    }
-
-    function jump() {
-      if (!gameRunning) return;
-      if (!dino.classList.contains("jump")) {
-        dino.classList.add("jump");
-        jumpSound.currentTime = 0;
-        jumpSound.play();
-        setTimeout(() => {
-          dino.classList.remove("jump");
-        }, 500);
-      }
-    }
-
-    document.addEventListener("keydown", jump);
-    document.addEventListener("touchstart", jump);
-
-    const scoreInterval = setInterval(() => {
-      if (gameRunning) {
-        score++;
-        scoreDisplay.textContent = "Pontuação: " + score;
-      }
-    }, 100);
-
-    const checkCollision = setInterval(() => {
-      const dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
-const dinoHeight = dino.offsetHeight;
-const cactusLeft = cactus.getBoundingClientRect().left;
-const cactusRight = cactus.getBoundingClientRect().right;
-const dinoRight = dino.getBoundingClientRect().right;
-const dinoLeft = dino.getBoundingClientRect().left;
-
-const cactusTop = parseInt(window.getComputedStyle(cactus).getPropertyValue("bottom")) + cactus.offsetHeight;
-
-// Verifica se há sobreposição nos eixos X e Y
-const collisionX = dinoRight > cactusLeft && dinoLeft < cactusRight;
-const collisionY = dinoBottom < cactusTop;
-
-if (collisionX && collisionY) {
-  // COLISÃO DETECTADA
-  gameRunning = false;
-  clearInterval(difficultyInterval);
-  clearInterval(scoreInterval);
-  clearInterval(checkCollision);
-  hitSound.play();
-  failSound.play();
-  finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
-
-  // Atualiza recorde
-  if (score > highScore) {
-    localStorage.setItem("pigpigHighScore", score);
-    highScore = score;
-    highScoreDisplay.textContent = "Recorde: " + highScore;
+  function startGame() {
+    startScreen.style.display = "none";
+    gameArea.style.display = "block";
+    gameRunning = true;
   }
 
-  gameOverScreen.style.display = "flex";
-}
-
-      if (
-        cactusLeft < (window.innerWidth - dinoLeft) &&
-        cactusLeft > (window.innerWidth - dinoLeft - cactusWidth) &&
-        dinoTop < 70
-      ) {
-        gameRunning = false;
-        clearInterval(difficultyInterval);
-        clearInterval(scoreInterval);
-        clearInterval(checkCollision);
-        hitSound.play();
-        failSound.play();
-        finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
-
-        // Atualizar recorde
-        if (score > highScore) {
-          localStorage.setItem("pigpigHighScore", score);
-          highScore = score;
-          highScoreDisplay.textContent = "Recorde: " + highScore;
-        }
-
-        gameOverScreen.style.display = "flex";
-      }
-    }, 10);
-
-    // Dificuldade + barra de cor
-    let progress = 0;
-    let difficultyInterval = setInterval(() => {
-      if (gameRunning) {
-        const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
-        const newWidth = Math.min(currentWidth + 2, 120);
-        cactus.style.width = newWidth + "px";
-        cactus.style.height = newWidth + "px";
-
-        const currentDuration = parseFloat(getComputedStyle(cactus).animationDuration);
-        const newDuration = Math.max(currentDuration - 0.1, 0.8);
-        cactus.style.animation = `moveCactus ${newDuration}s linear infinite`;
-
-        progress = Math.min(progress + 10, 100);
-        const bar = document.getElementById("difficultyBar");
-        bar.style.width = progress + "%";
-
-        if (progress < 40) {
-          bar.style.backgroundColor = "#00cc66";
-        } else if (progress < 80) {
-          bar.style.backgroundColor = "#ffcc00";
-        } else {
-          bar.style.backgroundColor = "#ff0033";
-        }
-      }
-    }, 5000);
-  </script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+  function jump() {
+    if (!gameRunning) return;
+    if (!dino.classList.contains("jump")) {
+      dino.classList.add("jump");
+      jumpSound.currentTime = 0;
+      jumpSound.play();
+      setTimeout(() => {
+        dino.classList.remove("jump");
+      }, 500);
     }
-  </script>
+  }
+
+  document.addEventListener("keydown", jump);
+  document.addEventListener("touchstart", jump);
+    const scoreInterval = setInterval(() => {
+    if (gameRunning) {
+      score++;
+      scoreDisplay.textContent = "Pontuação: " + score;
+    }
+  }, 100);
+
+  const checkCollision = setInterval(() => {
+    const dinoRect = dino.getBoundingClientRect();
+    const cactusRect = cactus.getBoundingClientRect();
+
+    if (
+      dinoRect.right > cactusRect.left &&
+      dinoRect.left < cactusRect.right &&
+      dinoRect.bottom > cactusRect.top
+    ) {
+      gameRunning = false;
+      clearInterval(difficultyInterval);
+      clearInterval(scoreInterval);
+      clearInterval(checkCollision);
+      hitSound.play();
+      failSound.play();
+      finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
+
+      if (score > highScore) {
+        localStorage.setItem("pigpigHighScore", score);
+        highScore = score;
+        highScoreDisplay.textContent = "Recorde: " + highScore;
+      }
+
+      gameOverScreen.style.display = "flex";
+    }
+  }, 10);
+
+  // Dificuldade progressiva + barra de cor
+  let progress = 0;
+  let difficultyInterval = setInterval(() => {
+    if (gameRunning) {
+      const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
+      const newWidth = Math.min(currentWidth + 2, 80);
+      cactus.style.width = newWidth + "px";
+      cactus.style.height = newWidth + "px";
+
+      const currentDuration = parseFloat(getComputedStyle(cactus).animationDuration);
+      const newDuration = Math.max(currentDuration - 0.1, 0.8);
+      cactus.style.animation = `moveCactus ${newDuration}s linear infinite`;
+
+      progress = Math.min(progress + 10, 100);
+      const bar = document.getElementById("difficultyBar");
+      bar.style.width = progress + "%";
+
+      if (progress < 40) {
+        bar.style.backgroundColor = "#00cc66";
+      } else if (progress < 80) {
+        bar.style.backgroundColor = "#ffcc00";
+      } else {
+        bar.style.backgroundColor = "#ff0033";
+      }
+    }
+  }, 5000);
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+
 </body>
 </html>
