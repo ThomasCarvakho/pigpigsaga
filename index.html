@@ -46,8 +46,8 @@
       position: absolute;
       bottom: 0;
       left: 50px;
-      width: 120px;
-      height: 120px;
+      width: 80px;
+      height: 80px;
       background-image: url('pigpig_clean_hd.png');
       background-size: cover;
       background-repeat: no-repeat;
@@ -97,9 +97,27 @@
       padding: 10px 20px;
       cursor: pointer;
     }
+    #difficultyBarContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 3;
+}
+#difficultyBar {
+  height: 100%;
+  width: 0%;
+  background-color: #ff0077;
+  transition: width 0.3s ease;
+}
   </style>
 </head>
 <body>
+  <div id="difficultyBarContainer">
+  <div id="difficultyBar"></div>
+</div>
   <div id="score">Pontuação: 0</div>
   <div class="game" id="gameArea">
     <div class="dino" id="dino"></div>
@@ -160,9 +178,10 @@
       if (
         cactusLeft < (window.innerWidth - dinoLeft) &&
         cactusLeft > (window.innerWidth - dinoLeft - cactusWidth) &&
-        dinoTop < 50
+        dinoTop < 70
       ) {
         gameRunning = false;
+        clearInterval(difficultyInterval);
         hitSound.play();
         failSound.play();
         clearInterval(scoreInterval);
@@ -171,6 +190,34 @@
         gameOverScreen.style.display = "flex";
       }
     }, 10);
+    // Dificuldade progressiva: aumenta o tamanho e a velocidade do sabonete com o tempo
+let progress = 0;
+let difficultyInterval = setInterval(() => {
+  if (gameRunning) {
+    const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
+    const newWidth = Math.min(currentWidth + 2, 120); // até 120px
+    cactus.style.width = newWidth + "px";
+    cactus.style.height = newWidth + "px";
+    // Mudar cor da barra com base no progresso
+const bar = document.getElementById("difficultyBar");
+if (progress < 40) {
+  bar.style.backgroundColor = "#00cc66"; // verde
+} else if (progress < 80) {
+  bar.style.backgroundColor = "#ffcc00"; // amarelo
+} else {
+  bar.style.backgroundColor = "#ff0033"; // vermelho
+}
+
+    // Aumentar velocidade (mínimo 0.8s)
+    const currentDuration = parseFloat(getComputedStyle(cactus).animationDuration);
+    const newDuration = Math.max(currentDuration - 0.1, 0.8);
+    cactus.style.animation = `moveCactus ${newDuration}s linear infinite`;
+
+    // Atualizar barra de dificuldade
+    progress = Math.min(progress + 10, 100);
+    document.getElementById("difficultyBar").style.width = progress + "%";
+  }
+}, 5000); // a cada 5 segundos
   </script>
 
   <script>
