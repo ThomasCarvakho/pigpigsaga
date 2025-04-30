@@ -86,7 +86,6 @@
 
 <div class="game" id="gameArea">
   <div class="dino" id="dino"></div>
-  <div class="cactus" id="cactus"></div>
 </div>
 
 <div id="gameOver">
@@ -100,7 +99,6 @@
 
 <script>
 const dino = document.getElementById("dino");
-const cactus = document.getElementById("cactus");
 const scoreDisplay = document.getElementById("score");
 const highScoreDisplay = document.getElementById("highScore");
 const storedHighScoreDisplay = document.getElementById("storedHighScore");
@@ -149,69 +147,55 @@ const scoreInterval = setInterval(() => {
   }
 }, 100);
 
-const checkCollision = setInterval(() => {
-  const dinoRect = dino.getBoundingClientRect();
-  const cactusRect = cactus.getBoundingClientRect();
+function spawnCactus() {
+  if (!gameRunning) return;
+  const cactus = document.createElement("div");
+  cactus.classList.add("cactus");
+  gameArea.appendChild(cactus);
 
-  const overlapX = dinoRect.right > cactusRect.left && dinoRect.left < cactusRect.right;
-  const overlapY = dinoRect.bottom > cactusRect.top && dinoRect.top < cactusRect.bottom;
+  const collisionCheck = setInterval(() => {
+    if (!gameRunning || !cactus.isConnected) return clearInterval(collisionCheck);
+    const dinoRect = dino.getBoundingClientRect();
+    const cactusRect = cactus.getBoundingClientRect();
+    const overlapX = dinoRect.right > cactusRect.left && dinoRect.left < cactusRect.right;
+    const overlapY = dinoRect.bottom > cactusRect.top && dinoRect.top < cactusRect.bottom;
+    const stomped = overlapX && dinoRect.bottom <= cactusRect.top + 10;
 
-  // Se acertar por cima (pisar no sabonete)
-  const stomped = overlapX && dinoRect.bottom <= cactusRect.top + 10;
-
-  if (stomped) {
-    cactus.style.display = "none";
-    score += 50;
-    scoreDisplay.textContent = "Pontuação: " + score;
-    return;
-  }
-
-  if (overlapX && overlapY) {
-    gameRunning = false;
-    clearInterval(difficultyInterval);
-    clearInterval(scoreInterval);
-    clearInterval(checkCollision);
-    hitSound.play();
-    failSound.play();
-    finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
-
-    if (score > highScore) {
-      localStorage.setItem("pigpigHighScore", score);
-      highScore = score;
-      highScoreDisplay.textContent = "Recorde: " + highScore;
+    if (stomped) {
+      cactus.remove();
+      score += 50;
+      scoreDisplay.textContent = "Pontuação: " + score;
+      clearInterval(collisionCheck);
+    } else if (overlapX && overlapY) {
+      gameRunning = false;
+      hitSound.play();
+      failSound.play();
+      finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
+      if (score > highScore) {
+        localStorage.setItem("pigpigHighScore", score);
+        highScore = score;
+        highScoreDisplay.textContent = "Recorde: " + highScore;
+      }
+      gameOverScreen.style.display = "flex";
+      clearInterval(collisionCheck);
     }
-    gameOverScreen.style.display = "flex";
-  }
-}, 10);
+  }, 10);
+}
+
+setInterval(() => {
+  if (gameRunning) spawnCactus();
+}, 3000);
 
 let progress = 0;
 let difficultyStarted = false;
 let difficultyInterval = setInterval(() => {
   if (!gameRunning) return;
-
-  const currentWidth = parseInt(window.getComputedStyle(cactus).getPropertyValue("width"));
-
-  if (!difficultyStarted && score >= 300) {
-    difficultyStarted = true;
-  }
-
-  if (difficultyStarted) {
-    const newWidth = Math.min(currentWidth + 2, 70);
-    cactus.style.width = newWidth + "px";
-    cactus.style.height = newWidth + "px";
-
-    const currentDuration = parseFloat(getComputedStyle(cactus).animationDuration);
-    const newDuration = Math.max(currentDuration - 0.1, 0.8);
-    cactus.style.animation = `moveCactus ${newDuration}s linear infinite`;
-
-    progress = Math.min(progress + 10, 100);
-    const bar = document.getElementById("difficultyBar");
-    bar.style.width = progress + "%";
-
-    if (progress < 40) bar.style.backgroundColor = "#00cc66";
-    else if (progress < 80) bar.style.backgroundColor = "#ffcc00";
-    else bar.style.backgroundColor = "#ff0033";
-  }
+  const bar = document.getElementById("difficultyBar");
+  progress = Math.min(progress + 10, 100);
+  bar.style.width = progress + "%";
+  if (progress < 40) bar.style.backgroundColor = "#00cc66";
+  else if (progress < 80) bar.style.backgroundColor = "#ffcc00";
+  else bar.style.backgroundColor = "#ff0033";
 }, 5000);
 </script>
 <script>
