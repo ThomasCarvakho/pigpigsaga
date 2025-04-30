@@ -222,10 +222,38 @@
     }, 100);
 
     const checkCollision = setInterval(() => {
-      const dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
-      const cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("right"));
-      const cactusWidth = cactus.offsetWidth;
-      const dinoLeft = dino.offsetLeft;
+      const dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+const dinoHeight = dino.offsetHeight;
+const cactusLeft = cactus.getBoundingClientRect().left;
+const cactusRight = cactus.getBoundingClientRect().right;
+const dinoRight = dino.getBoundingClientRect().right;
+const dinoLeft = dino.getBoundingClientRect().left;
+
+const cactusTop = parseInt(window.getComputedStyle(cactus).getPropertyValue("bottom")) + cactus.offsetHeight;
+
+// Verifica se há sobreposição nos eixos X e Y
+const collisionX = dinoRight > cactusLeft && dinoLeft < cactusRight;
+const collisionY = dinoBottom < cactusTop;
+
+if (collisionX && collisionY) {
+  // COLISÃO DETECTADA
+  gameRunning = false;
+  clearInterval(difficultyInterval);
+  clearInterval(scoreInterval);
+  clearInterval(checkCollision);
+  hitSound.play();
+  failSound.play();
+  finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
+
+  // Atualiza recorde
+  if (score > highScore) {
+    localStorage.setItem("pigpigHighScore", score);
+    highScore = score;
+    highScoreDisplay.textContent = "Recorde: " + highScore;
+  }
+
+  gameOverScreen.style.display = "flex";
+}
 
       if (
         cactusLeft < (window.innerWidth - dinoLeft) &&
