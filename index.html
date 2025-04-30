@@ -24,16 +24,41 @@
       background-size: cover;
       background-position: center bottom;
     }
-    #score {
+    #startScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      text-align: center;
+    }
+    #startScreen h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    #startScreen button {
+      font-size: 20px;
+      padding: 12px 24px;
+      cursor: pointer;
+    }
+    #score, #highScore {
       position: absolute;
       top: 10px;
-      left: 10px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       color: #fff;
       text-shadow: 1px 1px 2px #000;
       z-index: 3;
     }
+    #score { left: 10px; }
+    #highScore { right: 10px; }
     .game {
       position: fixed;
       bottom: 0;
@@ -42,6 +67,7 @@
       height: 200px;
       overflow: hidden;
       z-index: 2;
+      display: none;
     }
     .dino {
       position: absolute;
@@ -116,21 +142,32 @@
   </style>
 </head>
 <body>
-  <div id="difficultyBarContainer">
-    <div id="difficultyBar"></div>
+
+  <!-- TELA INICIAL -->
+  <div id="startScreen">
+    <h1>PigPig - Running away from bath</h1>
+    <p>Recorde: <span id="storedHighScore">0</span></p>
+    <button onclick="startGame()">Jogar</button>
   </div>
+
+  <!-- UI JOGO -->
+  <div id="difficultyBarContainer"><div id="difficultyBar"></div></div>
   <div id="score">Pontuação: 0</div>
+  <div id="highScore">Recorde: 0</div>
+
+  <!-- ÁREA DO JOGO -->
   <div class="game" id="gameArea">
     <div class="dino" id="dino"></div>
     <div class="cactus" id="cactus"></div>
   </div>
 
+  <!-- GAME OVER -->
   <div id="gameOver">
     <div id="finalScore"></div>
     <button onclick="location.reload()">Reiniciar</button>
   </div>
 
-  <!-- Sons locais -->
+  <!-- SONS -->
   <audio id="jumpSound" src="jump.mp3"></audio>
   <audio id="hitSound" src="slide.mp3"></audio>
   <audio id="failSound" src="fail.mp3"></audio>
@@ -139,17 +176,31 @@
     const dino = document.getElementById("dino");
     const cactus = document.getElementById("cactus");
     const scoreDisplay = document.getElementById("score");
+    const highScoreDisplay = document.getElementById("highScore");
+    const storedHighScoreDisplay = document.getElementById("storedHighScore");
     const gameOverScreen = document.getElementById("gameOver");
     const finalScoreText = document.getElementById("finalScore");
-
     const jumpSound = document.getElementById("jumpSound");
     const hitSound = document.getElementById("hitSound");
     const failSound = document.getElementById("failSound");
+    const startScreen = document.getElementById("startScreen");
+    const gameArea = document.getElementById("gameArea");
 
     let score = 0;
-    let gameRunning = true;
+    let highScore = localStorage.getItem("pigpigHighScore") || 0;
+    let gameRunning = false;
+
+    storedHighScoreDisplay.textContent = highScore;
+    highScoreDisplay.textContent = "Recorde: " + highScore;
+
+    function startGame() {
+      startScreen.style.display = "none";
+      gameArea.style.display = "block";
+      gameRunning = true;
+    }
 
     function jump() {
+      if (!gameRunning) return;
       if (!dino.classList.contains("jump")) {
         dino.classList.add("jump");
         jumpSound.currentTime = 0;
@@ -183,16 +234,24 @@
       ) {
         gameRunning = false;
         clearInterval(difficultyInterval);
-        hitSound.play();
-        failSound.play();
         clearInterval(scoreInterval);
         clearInterval(checkCollision);
+        hitSound.play();
+        failSound.play();
         finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
+
+        // Atualizar recorde
+        if (score > highScore) {
+          localStorage.setItem("pigpigHighScore", score);
+          highScore = score;
+          highScoreDisplay.textContent = "Recorde: " + highScore;
+        }
+
         gameOverScreen.style.display = "flex";
       }
     }, 10);
 
-    // Dificuldade progressiva com barra de cor
+    // Dificuldade + barra de cor
     let progress = 0;
     let difficultyInterval = setInterval(() => {
       if (gameRunning) {
@@ -209,13 +268,12 @@
         const bar = document.getElementById("difficultyBar");
         bar.style.width = progress + "%";
 
-        // Trocar cor da barra
         if (progress < 40) {
-          bar.style.backgroundColor = "#00cc66"; // verde
+          bar.style.backgroundColor = "#00cc66";
         } else if (progress < 80) {
-          bar.style.backgroundColor = "#ffcc00"; // amarelo
+          bar.style.backgroundColor = "#ffcc00";
         } else {
-          bar.style.backgroundColor = "#ff0033"; // vermelho
+          bar.style.backgroundColor = "#ff0033";
         }
       }
     }, 5000);
