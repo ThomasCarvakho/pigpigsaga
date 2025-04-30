@@ -3,12 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>PigPig - Running away from bath</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="icon.png">
   <meta name="theme-color" content="#cc66cc">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; overflow: hidden; font-family: sans-serif; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
     body {
       background-image: url('bathroom_fullscreen.png');
       background-size: cover;
@@ -58,7 +67,9 @@
       0% { right: -60px; }
       100% { right: 100vw; }
     }
-    .jump { animation: jump 0.5s ease-out; }
+    .jump {
+      animation: jump 0.5s ease-out;
+    }
     @keyframes jump {
       0% { bottom: 0; }
       50% { bottom: 100px; }
@@ -100,8 +111,10 @@
     <button onclick="location.reload()">Reiniciar</button>
   </div>
 
-  <audio id="jumpSound" src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3"></audio>
-  <audio id="hitSound" src="https://freesound.org/data/previews/198/198841_285997-lq.mp3"></audio>
+  <!-- Sons locais -->
+  <audio id="jumpSound" src="jump.mp3"></audio>
+  <audio id="hitSound" src="slide.mp3"></audio>
+  <audio id="failSound" src="fail.mp3"></audio>
 
   <script>
     const dino = document.getElementById("dino");
@@ -109,8 +122,10 @@
     const scoreDisplay = document.getElementById("score");
     const gameOverScreen = document.getElementById("gameOver");
     const finalScoreText = document.getElementById("finalScore");
+
     const jumpSound = document.getElementById("jumpSound");
     const hitSound = document.getElementById("hitSound");
+    const failSound = document.getElementById("failSound");
 
     let score = 0;
     let gameRunning = true;
@@ -149,12 +164,19 @@
       ) {
         gameRunning = false;
         hitSound.play();
+        failSound.play();
         clearInterval(scoreInterval);
         clearInterval(checkCollision);
         finalScoreText.innerHTML = `🧼 PigPig foi pego!<br>Pontuação final: <strong>${score}</strong>`;
         gameOverScreen.style.display = "flex";
       }
     }, 10);
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
   </script>
 </body>
 </html>
