@@ -115,6 +115,7 @@ const gameArea = document.getElementById("gameArea");
 let score = 0;
 let highScore = localStorage.getItem("pigpigHighScore") || 0;
 let gameRunning = false;
+let jumpCount = 0;
 
 storedHighScoreDisplay.textContent = highScore;
 highScoreDisplay.textContent = "Recorde: " + highScore;
@@ -126,15 +127,17 @@ function startGame() {
 }
 
 function jump() {
-  if (!gameRunning) return;
-  if (!dino.classList.contains("jump")) {
-    dino.classList.add("jump");
-    jumpSound.currentTime = 0;
-    jumpSound.play();
-    setTimeout(() => {
-      dino.classList.remove("jump");
-    }, 500);
-  }
+  if (!gameRunning || jumpCount >= 2) return;
+  dino.classList.remove("jump");
+  void dino.offsetWidth; // força reinício da animação
+  dino.classList.add("jump");
+  jumpSound.currentTime = 0;
+  jumpSound.play();
+  jumpCount++;
+  setTimeout(() => {
+    dino.classList.remove("jump");
+    if (jumpCount > 0) jumpCount--;
+  }, 500);
 }
 
 document.addEventListener("keydown", jump);
