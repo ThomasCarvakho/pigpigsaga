@@ -168,6 +168,46 @@
 <audio id="failSound" src="fail.mp3"></audio>
 
 <script>
+const dino = document.getElementById("dino");
+  const cactus = document.getElementById("cactus");
+  const scoreDisplay = document.getElementById("score");
+  const highScoreDisplay = document.getElementById("highScore");
+  const storedHighScoreDisplay = document.getElementById("storedHighScore");
+  const gameOverScreen = document.getElementById("gameOver");
+  const finalScoreText = document.getElementById("finalScore");
+  const jumpSound = document.getElementById("jumpSound");
+  const hitSound = document.getElementById("hitSound");
+  const failSound = document.getElementById("failSound");
+  const startScreen = document.getElementById("startScreen");
+  const gameArea = document.getElementById("gameArea");
+
+  let score = 0;
+  let highScore = localStorage.getItem("pigpigHighScore") || 0;
+  let gameRunning = false;
+
+  storedHighScoreDisplay.textContent = highScore;
+  highScoreDisplay.textContent = "Recorde: " + highScore;
+
+  function startGame() {
+    startScreen.style.display = "none";
+    gameArea.style.display = "block";
+    gameRunning = true;
+  }
+
+  function jump() {
+    if (!gameRunning) return;
+    if (!dino.classList.contains("jump")) {
+      dino.classList.add("jump");
+      jumpSound.currentTime = 0;
+      jumpSound.play();
+      setTimeout(() => {
+        dino.classList.remove("jump");
+      }, 500);
+    }
+  }
+
+  document.addEventListener("keydown", jump);
+  document.addEventListener("touchstart", jump)
     const scoreInterval = setInterval(() => {
     if (gameRunning) {
       score++;
